@@ -1,0 +1,19 @@
+{
+  "services":
+    {
+      "devcontainer":
+        {
+          "command": "sh -exc 'while sleep 1m; do :; done'",
+          "image": "public.ecr.aws/acilearning/haskell:9.6.2-1f7763a612afa699880fcd31740e8d1c3e30a754",
+          "init": true,
+          "volumes":
+            [
+              "..:/workspaces/panoramic",
+              "cabal-cache:/home/vscode/.cache/cabal",
+              "cabal-state:/home/vscode/.local/state/cabal",
+            ],
+          "working_dir": "/workspaces/panoramic",
+        },
+    },
+  "volumes": { "cabal-cache": null, "cabal-state": null },
+}
