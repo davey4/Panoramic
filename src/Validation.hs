@@ -3,6 +3,8 @@ module Validation where
 import qualified Control.Exception as Exception
 import qualified Exceptions.InvalidMaritalStatus as InvalidMaritalStatus
 import qualified Exceptions.InvalidPerson as InvalidPerson
+import qualified Exceptions.InvalidPhoneNumber as InvalidPhoneNumber
+import qualified Exceptions.InvalidSocialSecurityNumber as InvalidSocialSecurityNumber
 import qualified Models.EditablePerson as EditablePerson
 import qualified Models.Person.PhoneNumber as PhoneNumber
 import qualified Models.Person.SocialSecurityNumber as SocialSecurityNumber
@@ -21,11 +23,21 @@ validatePerson p =
       ValidatedPerson.ValidatedPerson
         { ValidatedPerson.firstName = Witch.from fn
         , ValidatedPerson.lastName = Witch.from ln
-        , ValidatedPerson.socialSecurityNumber = SocialSecurityNumber.validateSSN $ Witch.into ssn
-        , ValidatedPerson.maritalStatus = case Witch.tryFrom ms of
-            Left _ -> Exception.throw $ InvalidMaritalStatus.InvalidMaritalStatus "Invalid Marital Status"
-            Right x -> x
-        , ValidatedPerson.usPhoneNumber = PhoneNumber.validatePhoneNumber $ Witch.into pn
+        , ValidatedPerson.socialSecurityNumber =
+            either
+              (Exception.throw $ InvalidSocialSecurityNumber.InvalidSocialSecurityNumber "Invalid SSN")
+              id
+              $ Witch.tryInto ssn
+        , ValidatedPerson.maritalStatus =
+            either
+              (Exception.throw $ InvalidMaritalStatus.InvalidMaritalStatus "Invalid Marital Status")
+              id
+              $ Witch.tryFrom ms
+        , ValidatedPerson.usPhoneNumber =
+            either
+              (Exception.throw $ InvalidPhoneNumber.InvalidPhoneNumber "Invalid Phone Number")
+              id
+              $ Witch.tryInto pn
         }
     _ -> Exception.throw $ InvalidPerson.InvalidPerson "Invalid Person. All fields are required"
 
